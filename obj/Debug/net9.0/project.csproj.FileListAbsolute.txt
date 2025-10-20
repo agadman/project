@@ -39,3 +39,4 @@
 /Users/annikagadman/Documents/MIUN/Kurser/ProgrammeringCSharp.NET/project/obj/Debug/net9.0/project.pdb
 /Users/annikagadman/Documents/MIUN/Kurser/ProgrammeringCSharp.NET/project/obj/Debug/net9.0/project.genruntimeconfig.cache
 /Users/annikagadman/Documents/MIUN/Kurser/ProgrammeringCSharp.NET/project/obj/Debug/net9.0/ref/project.dll
+/Users/annikagadman/Documents/MIUN/Kurser/ProgrammeringCSharp.NET/project/obj/Debug/net9.0/project.sourcelink.json
