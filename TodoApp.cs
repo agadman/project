@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class TodoApp
 {
     private readonly TodoDatabase _db = new();
-    private List<TodoItem> _cachedTodos = new(); 
 
     public void Run()
     {
@@ -15,18 +14,17 @@ public class TodoApp
             Console.Clear();
             ConsoleHelper.WriteHeader("ATT GÖRA LISTA");
 
-            _cachedTodos = _db.GetTodos().OrderBy(t => t.DueDate ?? DateTime.MaxValue).ToList();
+            var todos = _db.GetTodos().OrderBy(t => t.DueDate ?? DateTime.MaxValue).ToList();
 
-            if (_cachedTodos.Count == 0)
+            if (todos.Count == 0)
             {
                 Console.WriteLine("Inga uppgifter att göra ännu.\n");
             }
             else
             {
-                for (int i = 0; i < _cachedTodos.Count; i++)
+                foreach (var todo in todos)
                 {
-                    var todo = _cachedTodos[i];
-                    Console.Write($"{i + 1}. ");
+                    Console.Write($"ID {todo.Id}: ");
                     DisplayTodoItem(todo);
                 }
             }
@@ -71,12 +69,13 @@ public class TodoApp
     {
         Console.Clear();
         ConsoleHelper.WriteHeader("LÄGG TILL UPPGIFT");
+        Console.WriteLine("(Tryck Enter utan att skriva något för att avbryta)\n");
 
         Console.Write("Titel: ");
         string title = Console.ReadLine()?.Trim() ?? "";
         if (string.IsNullOrWhiteSpace(title))
         {
-            ConsoleHelper.WriteError("Titel får inte vara tom.");
+            ConsoleHelper.WriteSuccess("Avbrutet.");
             ConsoleHelper.Pause();
             return;
         }
@@ -85,19 +84,22 @@ public class TodoApp
         string description = Console.ReadLine() ?? "";
 
         DateTime? dueDate = null;
-        Console.Write("Förfallodatum (yyyy-mm-dd eller tomt): ");
+        Console.Write("Klar senast (yyyy-mm-dd eller tomt): ");
         string dateInput = Console.ReadLine() ?? "";
 
-        if (!string.IsNullOrWhiteSpace(dateInput))
+        if (string.IsNullOrWhiteSpace(dateInput))
         {
-            if (DateTime.TryParse(dateInput, out DateTime parsed))
-                dueDate = parsed;
-            else
-            {
-                ConsoleHelper.WriteError("Felaktigt datumformat.");
-                ConsoleHelper.Pause();
-                return;
-            }
+            // Ingen förfallodag - fortsätt som vanligt
+        }
+        else if (!DateTime.TryParse(dateInput, out DateTime parsed))
+        {
+            ConsoleHelper.WriteError("Felaktigt datumformat.");
+            ConsoleHelper.Pause();
+            return;
+        }
+        else
+        {
+            dueDate = parsed;
         }
 
         _db.AddTodo(title, description, dueDate);
@@ -110,28 +112,45 @@ public class TodoApp
         Console.Clear();
         ConsoleHelper.WriteHeader("TA BORT UPPGIFT");
 
-        if (_cachedTodos.Count == 0)
+        var todos = _db.GetTodos().OrderBy(t => t.DueDate ?? DateTime.MaxValue).ToList();
+        if (todos.Count == 0)
         {
             Console.WriteLine("Inga uppgifter att ta bort.");
             ConsoleHelper.Pause();
             return;
         }
 
-        Console.Write("Ange numret på uppgiften: ");
+        Console.WriteLine("Mina uppgifter:");
+        foreach (var todo in todos)
+        {
+            Console.Write($"ID {todo.Id}: ");
+            Console.WriteLine($"{todo.Title}");
+            if (todo.DueDate != null)
+                Console.WriteLine($"Klar senast: {todo.DueDate:yyyy-MM-dd}");
+            Console.WriteLine();
+        }
+
+        Console.Write("Ange ID på uppgiften som ska tas bort (eller 0 för att avbryta): ");
         string? input = Console.ReadLine();
 
-        if (int.TryParse(input, out int index) && index > 0 && index <= _cachedTodos.Count)
+        if (string.IsNullOrWhiteSpace(input) || input == "0")
         {
-            int id = _cachedTodos[index - 1].Id;
+            ConsoleHelper.WriteSuccess("Avbrutet.");
+            ConsoleHelper.Pause();
+            return;
+        }
+
+        if (int.TryParse(input, out int id))
+        {
             bool removed = _db.RemoveTodo(id);
             if (removed)
                 ConsoleHelper.WriteSuccess("Uppgift borttagen!");
             else
-                ConsoleHelper.WriteError("Kunde inte ta bort uppgiften.");
+                ConsoleHelper.WriteError("Kunde inte hitta uppgiften med det ID:t.");
         }
         else
         {
-            ConsoleHelper.WriteError("Felaktigt nummer.");
+            ConsoleHelper.WriteError("Felaktigt ID.");
         }
         ConsoleHelper.Pause();
     }
@@ -141,29 +160,48 @@ public class TodoApp
         Console.Clear();
         ConsoleHelper.WriteHeader("MARKERA SOM KLAR");
 
-        if (_cachedTodos.Count == 0)
+        var todos = _db.GetTodos().OrderBy(t => t.DueDate ?? DateTime.MaxValue).ToList();
+
+        if (todos.Count == 0)
         {
             Console.WriteLine("Inga uppgifter att markera.");
             ConsoleHelper.Pause();
             return;
         }
 
-        Console.Write("Ange numret på uppgiften: ");
+        Console.WriteLine("Mina uppgifter:");
+        foreach (var todo in todos)
+        {
+            Console.Write($"ID {todo.Id}: ");
+            Console.WriteLine($"{todo.Title}");
+            if (todo.DueDate != null)
+                Console.WriteLine($"Klar senast: {todo.DueDate:yyyy-MM-dd}");
+            Console.WriteLine();
+        }
+
+        Console.Write("Ange ID på uppgiften du vill markera som klar (eller 0 för att avbryta): ");
         string? input = Console.ReadLine();
 
-        if (int.TryParse(input, out int index) && index > 0 && index <= _cachedTodos.Count)
+        if (string.IsNullOrWhiteSpace(input) || input == "0")
         {
-            int id = _cachedTodos[index - 1].Id;
+            ConsoleHelper.WriteSuccess("Avbrutet.");
+            ConsoleHelper.Pause();
+            return;
+        }
+
+        if (int.TryParse(input, out int id))
+        {
             bool success = _db.markComplete(id);
             if (success)
                 ConsoleHelper.WriteSuccess("Uppgift markerad som klar!");
             else
-                ConsoleHelper.WriteError("Kunde inte markera uppgiften.");
+                ConsoleHelper.WriteError("Kunde inte markera uppgiften (kontrollera ID).");
         }
         else
         {
-            ConsoleHelper.WriteError("Felaktigt nummer.");
+            ConsoleHelper.WriteError("Felaktig inmatning, ange ett giltigt ID.");
         }
+
         ConsoleHelper.Pause();
     }
 
@@ -179,10 +217,10 @@ public class TodoApp
         }
         else
         {
-            for (int i = 0; i < completed.Count; i++)
+            foreach (var todo in completed)
             {
-                Console.Write($"{i + 1}. ");
-                DisplayTodoItem(completed[i]);
+                Console.Write($"ID {todo.Id}: ");
+                DisplayTodoItem(todo);
             }
         }
         ConsoleHelper.Pause();
@@ -202,10 +240,10 @@ public class TodoApp
             Console.WriteLine("Inga uppgifter inom en vecka.");
         else
         {
-            for (int i = 0; i < todos.Count; i++)
+            foreach (var todo in todos)
             {
-                Console.Write($"{i + 1}. ");
-                DisplayTodoItem(todos[i]);
+                Console.Write($"ID {todo.Id}: ");
+                DisplayTodoItem(todo);
             }
         }
 
@@ -226,7 +264,7 @@ public class TodoApp
             else
                 Console.ForegroundColor = ConsoleColor.White;
 
-            Console.WriteLine($"Klar senast: {todo.DueDate:yyyy-MM-dd}");
+            Console.WriteLine($"   Klar senast: {todo.DueDate:yyyy-MM-dd}");
             Console.ForegroundColor = ConsoleColor.White;
         }
         Console.WriteLine();
