@@ -5,7 +5,6 @@ public static class ConsoleHelper
 {
     public static void SetupConsole()
     {
-        Console.Title = "To-Do App";
         Console.ForegroundColor = ConsoleColor.White;
         Console.BackgroundColor = ConsoleColor.Black;
         Console.Clear();
