@@ -7,6 +7,7 @@ public class TodoApp
 {
     private readonly TodoDatabase _db = new();
 
+    // Huvudmetod för att köra applikationen (visa meny, hantera val osv)
     public void Run()
     {
         while (true)
@@ -36,6 +37,7 @@ public class TodoApp
         }
     }
 
+    // Skriver ut menyn 
     private void ShowMenu()
     {
         ConsoleHelper.WriteHeader("MENY");
@@ -48,6 +50,7 @@ public class TodoApp
         Console.Write("Välj ett alternativ: ");
     }
 
+    // Hanterar användarens menyval
     private void HandleMenuChoice(char choice)
     {
         switch (choice)
@@ -65,6 +68,7 @@ public class TodoApp
         }
     }
 
+    // Lägger till en ny uppgift
     private void AddTodo()
     {
         Console.Clear();
@@ -89,7 +93,7 @@ public class TodoApp
 
         if (string.IsNullOrWhiteSpace(dateInput))
         {
-            // Ingen förfallodag - fortsätt som vanligt
+            // Om ingen förfallodag (tomt), fortsätt som vanligt
         }
         else if (!DateTime.TryParse(dateInput, out DateTime parsed))
         {
@@ -107,6 +111,7 @@ public class TodoApp
         ConsoleHelper.Pause();
     }
 
+    // Tar bort en uppgift baserat på ID
     private void RemoveTodo()
     {
         Console.Clear();
@@ -155,6 +160,7 @@ public class TodoApp
         ConsoleHelper.Pause();
     }
 
+    // Markerar en uppgift som klar baserat på ID
     private void MarkAsComplete()
     {
         Console.Clear();
@@ -205,6 +211,7 @@ public class TodoApp
         ConsoleHelper.Pause();
     }
 
+    // Visar klara uppgifter (arkiv)
     private void ShowArchive()
     {
         Console.Clear();
@@ -226,6 +233,7 @@ public class TodoApp
         ConsoleHelper.Pause();
     }
 
+    // Filtrerar fram uppgifter med deadline inom en 7 dagar
     private void FilterWeek()
     {
         Console.Clear();
@@ -250,6 +258,7 @@ public class TodoApp
         ConsoleHelper.Pause();
     }
 
+    // Skriver ut en uppgift med färgmarkering beroende av förfallodag
     private void DisplayTodoItem(TodoItem todo)
     {
         Console.WriteLine($"{todo.Title}");

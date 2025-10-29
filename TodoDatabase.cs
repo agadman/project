@@ -7,6 +7,7 @@ public class TodoDatabase
 {
     private const string ConnectionString = "Data Source=./todos.db";
 
+    // Här är konstruktorn som skapar tabellen om den inte finns
     public TodoDatabase()
     {
         using var connection = new SqliteConnection(ConnectionString);
@@ -25,6 +26,7 @@ public class TodoDatabase
         tableCmd.ExecuteNonQuery();
     }
 
+    // Hämtar alla uppgifter som inte är klara
     public List<TodoItem> GetTodos()
     {
         var todos = new List<TodoItem>();
@@ -43,6 +45,8 @@ public class TodoDatabase
         return todos;
     }
 
+
+    // Lägger till en ny uppgift i databasen
     public void AddTodo(string title, string description, DateTime? dueDate)
     {
         using var connection = new SqliteConnection(ConnectionString);
@@ -65,6 +69,7 @@ public class TodoDatabase
         insertCmd.ExecuteNonQuery();
     }
 
+    // Tar bort en uppgift baserat på ID
     public bool RemoveTodo(int id)
     {
         using var connection = new SqliteConnection(ConnectionString);
@@ -76,6 +81,7 @@ public class TodoDatabase
         return deleteCmd.ExecuteNonQuery() > 0;
     }
 
+    // Markerar en uppgift som klar eller inte klar
     public bool markComplete(int id, bool isCompleted = true)
     {
         using var connection = new SqliteConnection(ConnectionString);
@@ -88,6 +94,7 @@ public class TodoDatabase
         return completeCmd.ExecuteNonQuery() > 0;
     }
 
+    // Hämtar alla uppgifter som är klara
     public List<TodoItem> GetCompletedTodos()
     {
         var todos = new List<TodoItem>();
@@ -106,6 +113,7 @@ public class TodoDatabase
         return todos;
     }
 
+    // Hjälpmetod som läser en uppgift (TodoItem) från databasen och skapar ett TodoItem-objekt
     private TodoItem ReadTodo(SqliteDataReader reader)
     {
         return new TodoItem
