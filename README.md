@@ -35,3 +35,6 @@ Appen erbjuder ett enkelt, färgmarkerat gränssnitt direkt i terminalen. Bra f�
 ## Databas
 Appen använder SQLite för att spara uppgifter mellan sessioner.
 Databasen skapas automatiskt första gången programmet körs och lagras som todo.db i projektmappen.
+
+## Videolänk
+https://youtu.be/kghkXIzdLxw
